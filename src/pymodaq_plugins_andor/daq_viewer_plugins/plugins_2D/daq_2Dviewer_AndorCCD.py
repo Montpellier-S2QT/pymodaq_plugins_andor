@@ -84,6 +84,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
                                             'value': 'FullVertBinning'},
+            {'title': 'Readout Speed:', 'name': 'hsspeed', 'type': 'list', 'limits':['3 MHz', '1 MHz', '50 kHz'], 'value':'3 MHz']
+            }
+
             {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children':[
 
                 {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False, 'children':[
@@ -147,6 +150,8 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updated_timer)
 
+        self.hsspeeddict = None
+
     def commit_settings(self, param):
         """
             | Activate parameters changes on the hardware from parameter's name.
@@ -169,6 +174,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             elif param.name() == 'readout' or param.name() in iter_children(self.settings.child('camera_settings', 'readout_settings')):
                 self.update_read_mode()
+
+            elif param.name() == 'hsspeed':
+                self.update_hsspeed(param.value())
                 
             elif param.name() == 'exposure':
                 self.camera_controller.SetExposureTime(self.settings.child('camera_settings', 'exposure').value() / 1000) #temp should be in s
@@ -263,6 +271,12 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
             self.x_axis = self.get_xaxis()
             self.y_axis = self.get_yaxis()
 
+    def update_hsspeed(self,value):
+
+        ind = self.hsspeeddict[value]
+        self.camera_controller.SetHSSpeed(ind)
+
+
     def set_multi_track_area(self):
 
         N = self.settings.child('camera_settings', 'readout_settings', 'mt_settings', 'mt_N').value()
@@ -325,6 +339,13 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         self.emit_status(ThreadCommand('show_splash', ["Set/Get Camera's settings"]))
         self.ini_camera()
+
+        hsspeedlist = self.camera_controller.GetHSSpeed()
+        self.hsspeeddict = {}
+        for i,s in enumerate(hsspeedlist):
+            self.hsspeeddict[f"{s/1000} kHz"]=i
+        self.settings.child("hsspeed").setLimits(self.hsspeeddict.keys())
+
 
         # %%%%%%% init axes from image
         self.x_axis = self.get_xaxis()
