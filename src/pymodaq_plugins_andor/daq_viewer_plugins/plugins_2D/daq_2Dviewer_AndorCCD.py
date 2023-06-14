@@ -84,8 +84,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
                                             'value': 'FullVertBinning'},
-            {'title': 'Readout Speed:', 'name': 'hsspeed', 'type': 'list', 'limits':['3 MHz', '1 MHz', '50 kHz'], 'value':'3 MHz']
-            }
+            {'title': 'Readout Speed:', 'name': 'hsspeed', 'type': 'list', 'limits':['3 MHz', '1 MHz', '50 kHz'], 'value':'3 MHz'},
 
             {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children':[
 
@@ -274,6 +273,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
     def update_hsspeed(self,value):
 
         ind = self.hsspeeddict[value]
+        print(ind, type(ind))
         self.camera_controller.SetHSSpeed(ind)
 
 
@@ -343,9 +343,8 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         hsspeedlist = self.camera_controller.GetHSSpeed()
         self.hsspeeddict = {}
         for i,s in enumerate(hsspeedlist):
-            self.hsspeeddict[f"{s/1000} kHz"]=i
-        self.settings.child("hsspeed").setLimits(self.hsspeeddict.keys())
-
+            self.hsspeeddict[f"{s} MHz"] = i
+        self.settings.child('camera_settings', 'hsspeed').setLimits(self.hsspeeddict.keys())
 
         # %%%%%%% init axes from image
         self.x_axis = self.get_xaxis()

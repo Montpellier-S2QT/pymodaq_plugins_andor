@@ -76,6 +76,10 @@ class AndorSDK:
     def __init__(self):
         """
         """
+        self._channel = 0
+        self._outamp = 0
+
+
     @classmethod
     def init_camera(cls):
         # Initialize the device
@@ -219,8 +223,9 @@ class AndorSDK:
             (int) : the number of HS speeds
         '''
         noHSSpeeds = c_int()
-        error = _dll.GetNumberHSSpeeds(self._channel, self._outamp,
-                                            byref(noHSSpeeds))
+
+        error = _dll.GetNumberHSSpeeds(self._channel, self._outamp ,byref(noHSSpeeds))
+
         if error != 20002:
             raise IOError(ERROR_CODE[error])
         return noHSSpeeds.value
@@ -917,9 +922,11 @@ class AndorSDK:
         Output:
             None
         '''
-        error = _dll.SetHSSpeed(index)
+        error = _dll.SetHSSpeed(self._channel, index)
         if error != 20002:
+            print('erreur SetHSSpeed - index=', index)
             raise IOError(ERROR_CODE[error])
+
 
     def GetVSSpeed(self):
         '''
