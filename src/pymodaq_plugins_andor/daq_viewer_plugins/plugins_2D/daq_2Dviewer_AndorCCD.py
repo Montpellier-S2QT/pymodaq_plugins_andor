@@ -40,6 +40,7 @@ class Andor_Camera_ReadOut(IntEnum):
     def names(cls):
         return [name for name, member in cls.__members__.items()]
 
+
 class Andor_Camera_AcqMode(IntEnum):
     """
         Enum class of AcqModes modes.
@@ -86,6 +87,8 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
                                             'value': 'FullVertBinning'},
+            {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': ['50kHz', '1MHz', '3MHz'],
+                                            'value': '0.05MHz'},
             {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children':[
 
                 {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False, 'children':[
@@ -171,6 +174,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             elif param.name() == 'readout' or param.name() in iter_children(self.settings.child('camera_settings', 'readout_settings')):
                 self.update_read_mode()
+
+            elif param.name() == 'readout_speed':
+                self.update_read_speed()
                 
             elif param.name() == 'exposure':
                 self.camera_controller.SetExposureTime(param.value() / 1000) #temp should be in s
@@ -263,6 +269,22 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             self.x_axis = self.get_xaxis()
             self.y_axis = self.get_yaxis()
+
+
+    def update_read_speed(self):
+        read_speed_str = self.settings.child('camera_settings', 'readout_speed').value()
+
+        if read_speed_str == '3MHz':
+            read_speed_index = 0
+        if read_speed_str == '1MHz':
+            read_speed_index = 1
+        if read_speed_str == '50kHz':
+            read_speed_index = 2
+
+        err = self.camera_controller.SetHSSpeed(read_speed_index)
+        if err != 'DRV_SUCCESS':
+            self.emit_status(ThreadCommand('Update_Status',[err,'log']))
+
 
     def set_multi_track_area(self):
 
