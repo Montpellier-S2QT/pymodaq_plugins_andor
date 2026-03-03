@@ -23,6 +23,10 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                     'readonly': True},
                 {'title': 'Wavelength (nm):', 'name': 'spectro_wl', 'type': 'float', 'value': 600, 'min': 0,
                     'readonly': True},
+                {'title': 'Slit Width (um):', 'name': 'slit_width', 'type': 'float', 'value': 100, 'min': 0,
+                 'readonly': False},
+                {'title': 'Input Port:', 'name': 'input_port', 'type': 'list'},
+                {'title': 'Output Port:', 'name': 'output_port', 'type': 'list'},
                 {'title': 'Home Wavelength (nm):', 'name': 'spectro_wl_home', 'type': 'float', 'value': 600, 'min': 0,
                  'readonly': False},
                 {'title': 'Grating Settings:', 'name': 'grating_settings', 'type': 'group', 'expanded': True,
@@ -71,6 +75,19 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                         raise Exception(err)
                     self.check_position()
                     self.emit_status(ThreadCommand('close_splash'))
+
+            elif param.name() == 'slit_width':
+                self.set_slitwidth(1, param.value())
+                #CAREFUL ! first parameter (0) is still a hard-coding of the input slit index (MacroPL-UV/L2C-Montpellier)
+
+            elif param.name() == 'input_port':
+                index_input_port = self.inputport_list.index(param.value())
+                self.set_inputport(index_input_port)
+
+            elif param.name() == 'output_port':
+                index_output_port = self.outputport_list.index(param.value())
+                print("indice = ", index_output_port)
+                self.set_outputport(index_output_port)
 
         except Exception as e:
             self.emit_status(ThreadCommand('Update_Status', [str(e), 'log']))
@@ -186,6 +203,23 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
             self.settings.child('spectro_settings', 'spectro_wl').setValue(wl)
         return float(wl)
 
+    def set_slitwidth(self, index, slitwidth):
+        self.emit_status(ThreadCommand('show_splash', "Setting wavelength, please wait!"))
+        err = self.shamrock_controller.SetAutoSlitWidthSR(0, index, slitwidth)
+        self.emit_status(ThreadCommand('close_splash'))
+
+        if err != 'SHAMROCK_SUCCESS':
+            raise IOError(err)
+
+        self.get_slitwidth(0,1)
+
+    def get_slitwidth(self,index):
+        err, sw = self.shamrock_controller.GetAutoSlitWidthSR(0,index)
+        if err == "SHAMROCK_SUCCESS":
+            self.settings.child('spectro_settings', 'slit_width').setValue(sw)
+        return float(sw)
+
+
     def ini_spectro(self):
         self.settings.child('spectro_settings', 'spectro_serialnumber').setValue(
             self.shamrock_controller.GetSerialNumberSR(0)[1].decode())
@@ -203,6 +237,21 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
             self.grating_list[ind_grating - 1])
 
         self.get_set_grating(ind_grating - 1)
+
+# idem pour les ports (PV/L2C) :######
+        self.inputport_list = ["INPUT_FRONT", "INPUT_SIDE"]
+        self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
+        err, inputport_index = self.shamrock_controller.get_input_port(0)
+        self.settings.child('spectro_settings', 'input_port').setValue(self.inputport_list[inputport_index])
+        self.set_inputport(inputport_index)
+
+        self.outputport_list = ["OUTPUT_FRONT", "OUTPUT_SIDE"]
+        self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
+        err, outputport_index = self.shamrock_controller.get_output_port(0)
+        self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport_index])
+        print('indice init :', outputport_index)
+        self.set_outputport(outputport_index)
+#######################################
 
     def get_set_grating(self, ind_grating):
         """
@@ -232,6 +281,51 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                                                                f' the selected grating')
 
         self.emit_status(ThreadCommand('close_splash'))
+
+    def set_inputport(self, index_inputport):
+        self.emit_status(ThreadCommand('show_splash', "Setting input port, please wait"))
+        if index_inputport == 0 :
+            strinputport = "INPUT_FRONT"
+        elif index_inputport == 1 :
+            strinputport = "INPUT_SIDE"
+        err = self.shamrock_controller.set_input_port(0, strinputport)
+
+        if err != 'SHAMROCK_SUCCESS':
+            raise IOError(err)
+
+        self.get_inputport()
+
+    def get_inputport(self):
+        err, inputport = self.shamrock_controller.get_input_port(0)
+
+        if err == "SHAMROCK_SUCCESS":
+            #self.settings.child('spectro_settings', 'input_port').setValue(str)
+            self.settings.child('spectro_settings', 'input_port').setValue(self.inputport_list[inputport])
+        return self.inputport_list[inputport]
+
+
+    def set_outputport(self, index_outputport):
+        self.emit_status(ThreadCommand('show_splash', "Setting output port, please wait"))
+        if index_outputport == 0:
+            stroutputport = "OUTPUT_FRONT"
+        elif index_outputport == 1:
+            stroutputport = "OUTPUT_SIDE"
+        err = self.shamrock_controller.set_output_port(0, stroutputport)
+
+        if err != 'SHAMROCK_SUCCESS':
+            raise IOError(err)
+
+        self.get_outputport()
+
+    def get_outputport(self):
+        err, outputport = self.shamrock_controller.get_output_port(0)
+        print(err, outputport, self.outputport_list[0])
+        if err == "SHAMROCK_SUCCESS":
+            #self.settings.child('spectro_settings', 'output_port').setValue(str)
+            a=self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport])
+            print('fait !',a)
+
+        return self.outputport_list[outputport]
 
     def stop(self):
         pass

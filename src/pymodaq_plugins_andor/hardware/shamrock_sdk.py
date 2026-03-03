@@ -181,7 +181,8 @@ class ShamrockSDK:
         error = _dll.ShamrockGetFlipperMirror(device, INPUT_CODE, byref(input_port))
         if error != 20202:
             raise IOError(ERROR_CODE[error])
-        return ERROR_CODE[error], "INPUT_FRONT" if input_port.value == FRONT_CODE else "INPUT_SIDE"
+        #return ERROR_CODE[error], "INPUT_FRONT" if input_port.value == FRONT_CODE else "INPUT_SIDE"
+        return ERROR_CODE[error], input_port.value
 
     def set_input_port(self, device, strinput_port):
         device = c_int(device)
@@ -204,7 +205,8 @@ class ShamrockSDK:
         error = _dll.ShamrockGetFlipperMirror(device, OUTPUT_CODE, byref(output_port))
         if error != 20202:
             raise IOError(ERROR_CODE[error])
-        return ERROR_CODE[error], "OUTPUT_FRONT" if output_port.value == FRONT_CODE else "OUTPUT_SIDE"
+        #return ERROR_CODE[error], "OUTPUT_FRONT" if output_port.value == FRONT_CODE else "OUTPUT_SIDE"
+        return ERROR_CODE[error], output_port.value
 
     def set_output_port(self, device, stroutput_port):
         device = c_int(device)

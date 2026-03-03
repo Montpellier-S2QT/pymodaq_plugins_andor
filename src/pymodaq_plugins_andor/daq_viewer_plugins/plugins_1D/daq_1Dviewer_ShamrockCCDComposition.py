@@ -63,6 +63,8 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
         if param.name() == 'spectro_wl':
             self.is_calibrated = False
             self.get_xaxis()
+        elif param.name() == 'slit_width':
+            self.is_calibrated = False
         elif param.name() == 'zero_order':
             self.is_calibrated = False
         elif param.name() == 'flip_wavelength':
