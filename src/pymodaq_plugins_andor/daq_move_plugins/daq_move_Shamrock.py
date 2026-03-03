@@ -86,7 +86,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
             elif param.name() == 'output_port':
                 index_output_port = self.outputport_list.index(param.value())
-                print("indice = ", index_output_port)
                 self.set_outputport(index_output_port)
 
         except Exception as e:
@@ -249,7 +248,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
         err, outputport_index = self.shamrock_controller.get_output_port(0)
         self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport_index])
-        print('indice init :', outputport_index)
         self.set_outputport(outputport_index)
 #######################################
 
@@ -289,6 +287,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         elif index_inputport == 1 :
             strinputport = "INPUT_SIDE"
         err = self.shamrock_controller.set_input_port(0, strinputport)
+        self.emit_status(ThreadCommand('close_splash'))
 
         if err != 'SHAMROCK_SUCCESS':
             raise IOError(err)
@@ -299,8 +298,8 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         err, inputport = self.shamrock_controller.get_input_port(0)
 
         if err == "SHAMROCK_SUCCESS":
-            #self.settings.child('spectro_settings', 'input_port').setValue(str)
             self.settings.child('spectro_settings', 'input_port').setValue(self.inputport_list[inputport])
+
         return self.inputport_list[inputport]
 
 
@@ -311,6 +310,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         elif index_outputport == 1:
             stroutputport = "OUTPUT_SIDE"
         err = self.shamrock_controller.set_output_port(0, stroutputport)
+        self.emit_status(ThreadCommand('close_splash'))
 
         if err != 'SHAMROCK_SUCCESS':
             raise IOError(err)
@@ -319,11 +319,9 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
     def get_outputport(self):
         err, outputport = self.shamrock_controller.get_output_port(0)
-        print(err, outputport, self.outputport_list[0])
+
         if err == "SHAMROCK_SUCCESS":
-            #self.settings.child('spectro_settings', 'output_port').setValue(str)
-            a=self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport])
-            print('fait !',a)
+            self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport])
 
         return self.outputport_list[outputport]
 
