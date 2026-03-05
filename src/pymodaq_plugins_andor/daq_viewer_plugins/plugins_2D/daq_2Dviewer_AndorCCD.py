@@ -215,7 +215,6 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
                                                                         self.data.reshape((sizey, sizex)).astype(float))],
                                                                     dim=self.data_shape)]))
             QtWidgets.QApplication.processEvents()  # here to be sure the timeevents are executed even if in continuous grab mode
-
         except Exception as e:
             self.emit_status(ThreadCommand('Update_Status', [str(e), 'log']))
 
@@ -505,7 +504,12 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         # %%%%%% Initialize data: self.data for the memory to store new data and self.data_average to store the average data
         image_size = sizex * sizey
-        self.data = np.zeros((image_size,), dtype=int)
+
+        # code original : self.data = np.zeros((image_size,), dtype=int)
+        self.data = np.zeros((image_size,), dtype=np.uint32)
+
+
+
         self.data_pointer = self.data.ctypes.data_as(ctypes.c_void_p)
 
         data_shape = 'Data2D' if sizey != 1 else 'Data1D'

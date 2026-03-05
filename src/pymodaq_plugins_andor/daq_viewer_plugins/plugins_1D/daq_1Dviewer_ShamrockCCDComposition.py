@@ -99,10 +99,9 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
         width, height = self.get_pixel_size()
         err = self.shamrock_controller.controller.SetNumberPixelsSR(0, self.get_ROI_size_x())
         err = self.shamrock_controller.controller.SetPixelWidthSR(0, width)
-
         self.shamrock_controller.get_wavelength()
         self.x_axis = self.get_xaxis()
-
+        print('Retours de SetCalibration :', width, height, self.get_ROI_size_x(), self.x_axis)
 
     def getCalibration(self):
 
@@ -190,6 +189,8 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
                                                  axes=[self.x_axis]),
                              ]))
             QtWidgets.QApplication.processEvents()  # here to be sure the timeevents are executed even if in continuous grab mode
+            print("Retour de emit_data : ",sizex, sizey, self.data.shape, self.data_shape, self.x_axis)
+            print("data : ", self.data)
 
         except Exception as e:
             self.emit_status(ThreadCommand('Update_Status', [str(e), 'log']))
