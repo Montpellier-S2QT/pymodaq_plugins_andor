@@ -78,52 +78,60 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
     """
     callback_signal = QtCore.Signal(int)
     hardware_averaging = True #will use the accumulate acquisition mode if averaging is neccessary
-    params = comon_parameters+[
+    params = comon_parameters + [
         {'title': 'Dll library:', 'name': 'andor_lib', 'type': 'browsepath', 'value': str(libpath)},
-        
+
         {'title': 'Camera Settings:', 'name': 'camera_settings', 'type': 'group', 'expanded': True, 'children': [
             {'title': 'Camera Models:', 'name': 'camera_model', 'type': 'list',
-                'limits': [f"{cam['model']}-{cam['serial']}" for cam in camera_list]},
+             'limits': [f"{cam['model']}-{cam['serial']}" for cam in camera_list]},
 
             {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
-                                            'value': 'FullVertBinning'},
-            {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': ['50kHz', '1MHz', '3MHz'],
-                                            'value': '0.05MHz'},
-            {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children':[
+             'value': 'FullVertBinning'},
+            {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': [],
+             'value': '0.05MHz'},
+            {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children': [
 
-                {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False, 'children':[
-                    {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                    {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                ]},    
-                {'title': 'Multi Track Settings:', 'name': 'mt_settings', 'type': 'group', 'visible': False, 'children':[
-                    {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                    {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                    {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 1 , 'default':1, 'min':0},
-                    {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 1 , 'default':1, 'min':0, 'readonly': True},
-                    {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 1 , 'default':1, 'min':0, 'readonly': True},
-                ]},
-                {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children':[
+                {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False,
+                 'children': [
+                     {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                     {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                 ]},
+                {'title': 'Multi Track Settings:', 'name': 'mt_settings', 'type': 'group', 'visible': False,
+                 'children': [
+                     {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                     {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                     {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 1, 'default': 1, 'min': 0},
+                     {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 1, 'default': 1, 'min': 0,
+                      'readonly': True},
+                     {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 1, 'default': 1, 'min': 0,
+                      'readonly': True},
+                 ]},
+                {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children': [
                     {'title': 'Binning along x:', 'name': 'bin_x', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
                     {'title': 'Binning along y:', 'name': 'bin_y', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                    {'title': 'Start x:', 'name': 'im_startx', 'type': 'int', 'value': 1 , 'default':1, 'min':0},
-                    {'title': 'End x:', 'name': 'im_endx', 'type': 'int', 'value': 1024 , 'default':1024, 'min':0},
-                    {'title': 'Start y:', 'name': 'im_starty', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                    {'title': 'End y:', 'name': 'im_endy', 'type': 'int', 'value': 256, 'default':256, 'min':1,},
-                    ]},   
-            ]},            
-            {'title': 'Exposure (ms):', 'name': 'exposure', 'type': 'float', 'value': 0.01 , 'default':0.01, 'min': 0},
-            
-            {'title': 'Image size:', 'name': 'image_size', 'type': 'group', 'children':[
-                {'title': 'Nx:', 'name': 'Nx', 'type': 'int', 'value': 0, 'default':0 , 'readonly': True},
-                {'title': 'Ny:', 'name': 'Ny', 'type': 'int', 'value': 0 , 'default':0 , 'readonly': True},
+                    {'title': 'Start x:', 'name': 'im_startx', 'type': 'int', 'value': 1, 'default': 1, 'min': 0},
+                    {'title': 'End x:', 'name': 'im_endx', 'type': 'int', 'value': 1024, 'default': 1024, 'min': 0},
+                    {'title': 'Start y:', 'name': 'im_starty', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                    {'title': 'End y:', 'name': 'im_endy', 'type': 'int', 'value': 256, 'default': 256, 'min': 1, },
                 ]},
-            
-            {'title': 'Shutter Settings:', 'name': 'shutter', 'type': 'group', 'children':[
-                {'title': 'Open Shutter on:', 'name': 'shutter_type', 'type': 'list', 'value': 'high', 'limits': ['low', 'high']},
-                {'title': 'Shutter mode:', 'name': 'shutter_mode', 'type': 'list', 'value': 'Auto', 'limits': ['Auto', 'Always Opened', 'Always Closed', ]},
-                {'title': 'Closing time (ms):', 'name': 'shutter_closing_time', 'type': 'int', 'value': 0, 'tip': 'millisecs it takes to close'},
-                {'title': 'Opening time (ms):', 'name': 'shutter_opening_time', 'type': 'int', 'value': 10, 'tip': 'millisecs it takes to open'},
-                ]},
+            ]},
+            {'title': 'Exposure (ms):', 'name': 'exposure', 'type': 'float', 'value': 0.01, 'default': 0.01, 'min': 0},
+
+            {'title': 'Image size:', 'name': 'image_size', 'type': 'group', 'children': [
+                {'title': 'Nx:', 'name': 'Nx', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
+                {'title': 'Ny:', 'name': 'Ny', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
+            ]},
+
+            {'title': 'Shutter Settings:', 'name': 'shutter', 'type': 'group', 'children': [
+                {'title': 'Open Shutter on:', 'name': 'shutter_type', 'type': 'list', 'value': 'high',
+                 'limits': ['low', 'high']},
+                {'title': 'Shutter mode:', 'name': 'shutter_mode', 'type': 'list', 'value': 'Auto',
+                 'limits': ['Auto', 'Always Opened', 'Always Closed', ]},
+                {'title': 'Closing time (ms):', 'name': 'shutter_closing_time', 'type': 'int', 'value': 0,
+                 'tip': 'millisecs it takes to close'},
+                {'title': 'Opening time (ms):', 'name': 'shutter_opening_time', 'type': 'int', 'value': 10,
+                 'tip': 'millisecs it takes to open'},
+            ]},
             {'title': 'Temperature Settings:', 'name': 'temperature_settings', 'type': 'group', 'children': [
                 {'title': 'Set Point:', 'name': 'set_point', 'type': 'float', 'value': -60, 'default': -60},
                 {'title': 'Current value:', 'name': 'current_value', 'type': 'float', 'value': 0, 'default': 0,
@@ -132,7 +140,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
                  'readonly': True},
             ]},
         ]},
-        ]
+    ]
 
     def ini_attributes(self):
 
@@ -151,6 +159,8 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.data_shape = None  # 'Data2D' if sizey != 1 else 'Data1D'
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updated_timer)
+
+
 
     def commit_settings(self, param):
         """
@@ -270,17 +280,26 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
             self.y_axis = self.get_yaxis()
 
 
+    def GetSpeedsString(self):
+
+        get_speeds = self.camera_controller.GetHSSpeed()
+        speeds_str_arr = []
+
+        for speed in get_speeds:
+            speed_str = str("{:.2f}".format(speed))
+            speeds_str_arr.append(speed_str+"MHz")
+
+        return speeds_str_arr
+
+    def SetSpeedIndex(self, value):
+
+        speeds_arr = self.GetSpeedsString()
+        return speeds_arr.index(value)
+
     def update_read_speed(self):
-        read_speed_str = self.settings.child('camera_settings', 'readout_speed').value()
+        read_speed_val = self.settings.child('camera_settings', 'readout_speed').value()
 
-        if read_speed_str == '3MHz':
-            read_speed_index = 0
-        if read_speed_str == '1MHz':
-            read_speed_index = 1
-        if read_speed_str == '50kHz':
-            read_speed_index = 2
-
-        err = self.camera_controller.SetHSSpeed(read_speed_index)
+        err = self.camera_controller.SetHSSpeed(self.SetSpeedIndex(read_speed_val))
         if err != 'DRV_SUCCESS':
             self.emit_status(ThreadCommand('Update_Status',[err,'log']))
 
@@ -378,6 +397,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.camera_controller.SetCurrentCamera(camera_list[cam_index]['handle'])
 
         self.CCDSIZEX, self.CCDSIZEY = self.camera_controller.GetDetector()
+
         self.settings.child('camera_settings', 'readout_settings',
                             'st_settings', 'st_center').setLimits((1, self.CCDSIZEY))
         self.settings.child('camera_settings', 'readout_settings',
@@ -388,6 +408,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.settings.child('camera_settings', 'readout_settings', 'image_settings', 'im_endx').setValue(self.CCDSIZEX)
         self.settings.child('camera_settings', 'readout_settings', 'image_settings',
                             'im_endx').setOpts(max=self.CCDSIZEX, default=self.CCDSIZEX)
+
+        #get available readout speeds
+        self.settings.child('camera_settings', 'readout_speed').setLimits(self.GetSpeedsString())
 
         # get max exposure range
         err, maxexpo = self.camera_controller.GetMaximumExposure()
