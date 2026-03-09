@@ -237,18 +237,27 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
         self.get_set_grating(ind_grating - 1)
 
-# idem pour les ports (PV/L2C) :######
-        self.inputport_list = ["INPUT_FRONT", "INPUT_SIDE"]
-        self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
-        err, inputport_index = self.shamrock_controller.get_input_port(0)
-        self.settings.child('spectro_settings', 'input_port').setValue(self.inputport_list[inputport_index])
-        self.set_inputport(inputport_index)
+# idem pour les ports (PV/L2C/) :######
+        if self.shamrock_controller.FlipperMirrorIsPresent(0,1)[1]==1:
+            self.inputport_list = ["INPUT_FRONT", "INPUT_SIDE"]
+            self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
+            err, inputport_index = self.shamrock_controller.get_input_port(0)
+            self.settings.child('spectro_settings', 'input_port').setValue(self.inputport_list[inputport_index])
+            self.set_inputport(inputport_index)
+        else :
+            self.inputport_list = ["SINGLE_INPUT_PORT"]
+            self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
 
-        self.outputport_list = ["OUTPUT_FRONT", "OUTPUT_SIDE"]
-        self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
-        err, outputport_index = self.shamrock_controller.get_output_port(0)
-        self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport_index])
-        self.set_outputport(outputport_index)
+        if self.shamrock_controller.FlipperMirrorIsPresent(0,2)[1]==1:
+            self.outputport_list = ["OUTPUT_FRONT", "OUTPUT_SIDE"]
+            self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
+            err, outputport_index = self.shamrock_controller.get_output_port(0)
+            self.settings.child('spectro_settings', 'output_port').setValue(self.outputport_list[outputport_index])
+            self.set_outputport(outputport_index)
+        else :
+            self.outputport_list = ["SINGLE_OUTPUT_PORT"]
+            self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
+
 #######################################
 
     def get_set_grating(self, ind_grating):

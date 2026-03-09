@@ -223,6 +223,15 @@ class ShamrockSDK:
             raise IOError(ERROR_CODE[error])
         return ERROR_CODE[error]
 
+    def FlipperMirrorIsPresent(self, device, port_code):
+        device = c_int(device)
+        present = c_int()
+        error = _dll.ShamrockFlipperMirrorIsPresent(device, port_code, byref(present))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], present.value
+
+
     #---- sdkwavelength functions
     def SetWavelengthSR(self, device, wavelength):
         device = c_int(device)
