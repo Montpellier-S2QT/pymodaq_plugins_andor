@@ -34,6 +34,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                         {'title': 'Grating:', 'name': 'grating', 'type': 'list'},
                         {'title': 'Lines (/mm):', 'name': 'lines', 'type': 'int', 'readonly': True},
                         {'title': 'Blaze WL (nm):', 'name': 'blaze', 'type': 'str', 'readonly': True},
+                        {'title': 'Offset (px):', 'name': 'grating_offset', 'type': 'int'},
                     ]},
                 {'title': 'Flip wavelength axis:', 'name': 'flip_wavelength', 'type': 'bool', 'value': False,
                     'visible': False},
@@ -62,6 +63,12 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                 index_grating = self.grating_list.index(param.value())
                 self.get_set_grating(index_grating)
                 self.set_wavelength(self.settings.child('spectro_settings', 'spectro_wl').value())
+
+            elif param.name() == 'grating_offset':
+
+                err, ind_grating = self.shamrock_controller.GetGratingSR(0)
+                offset = int(self.settings.child('spectro_settings', 'grating_settings', 'grating_offset').value())
+                err = self.shamrock_controller.SetGratingOffset(0, ind_grating, offset)
 
             elif param.name() == 'spectro_wl':
                 self.set_wavelength(param.value())
@@ -262,7 +269,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
     def get_set_grating(self, ind_grating):
         """
-        set the current grating to ind_grating+1. ind_grating corresponds to the index in the GUI graitng list while the SDK index starts at 1...
+        set the current grating to ind_grating+1. ind_grating corresponds to the index in the GUI grating list while the SDK index starts at 1...
 
         """
         self.emit_status(ThreadCommand('show_splash', "Moving grating please wait"))
@@ -274,8 +281,10 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
             self.grating_list[ind_grating - 1])
         self.settings.child('spectro_settings', 'grating_settings', 'lines').setValue(lines)
         self.settings.child('spectro_settings', 'grating_settings', 'blaze').setValue(blaze)
+        self.settings.child('spectro_settings', 'grating_settings', 'grating_offset').setValue(offset)
 
         (err, wl_min, wl_max) = self.shamrock_controller.GetWavelengthLimitsSR(0, ind_grating)
+
 
         if err == "SHAMROCK_SUCCESS":
             self.settings.child('spectro_settings',

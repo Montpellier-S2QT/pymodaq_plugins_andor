@@ -153,6 +153,24 @@ class ShamrockSDK:
             raise IOError(ERROR_CODE[error])
         return ERROR_CODE[error], Lines.value, Blaze.value.decode(), Home.value, Offset.value
 
+    def SetGratingOffset(self, device, grating, offset):
+        device = c_int(device)
+        grating = c_int(grating)
+        offset = c_int(offset)
+        error = _dll.ShamrockSetGratingOffset(device, grating, offset)
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error]
+
+    def GetGratingOffset(self, device, grating):
+        device = c_int(device)
+        grating = c_int(grating)
+        offset = c_int()
+        error = _dll.ShamrockGetGratingOffset(device, grating, byref(offset))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], offset.value
+
     #---- sdkslit functions
 
     def GetAutoSlitWidthSR(self, device, index):
