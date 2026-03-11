@@ -76,6 +76,9 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
             if param.value():
                 self.get_xaxis()
                 param.setValue(False)
+        elif param.name() == 'grating':
+            if param.value():
+                self.get_xaxis()
 
     def ini_detector(self, controller=None):
         cam_status, cam_init = super().ini_detector(controller)
