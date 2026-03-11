@@ -34,7 +34,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                         {'title': 'Grating:', 'name': 'grating', 'type': 'list'},
                         {'title': 'Lines (/mm):', 'name': 'lines', 'type': 'int', 'readonly': True},
                         {'title': 'Blaze WL (nm):', 'name': 'blaze', 'type': 'str', 'readonly': True},
-                        {'title': 'Offset (px):', 'name': 'grating_offset', 'type': 'int'},
+                        {'title': 'Offset (steps):', 'name': 'grating_offset', 'type': 'int'},
                     ]},
                 {'title': 'Flip wavelength axis:', 'name': 'flip_wavelength', 'type': 'bool', 'value': False,
                     'visible': False},
