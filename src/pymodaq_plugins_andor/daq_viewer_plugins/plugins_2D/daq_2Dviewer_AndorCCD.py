@@ -100,10 +100,10 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
                  'children': [
                      {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
                      {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                     {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 1, 'default': 1, 'min': 0},
-                     {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 1, 'default': 1, 'min': 0,
+                     {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 0, 'default': 0, 'min': 0},
+                     {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
                       'readonly': True},
-                     {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 1, 'default': 1, 'min': 0,
+                     {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
                       'readonly': True},
                  ]},
                 {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children': [

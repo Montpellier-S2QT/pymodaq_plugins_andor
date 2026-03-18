@@ -80,7 +80,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                     err = self.shamrock_controller.GotoZeroOrderSR(0)
                     if err != 'SHAMROCK_SUCCESS':
                         raise Exception(err)
-                    self.check_position()
                     self.emit_status(ThreadCommand('close_splash'))
 
             elif param.name() == 'slit_width':
@@ -210,14 +209,14 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         return float(wl)
 
     def set_slitwidth(self, index, slitwidth):
-        self.emit_status(ThreadCommand('show_splash', "Setting wavelength, please wait!"))
+        self.emit_status(ThreadCommand('show_splash', "Setting slit width, please wait!"))
         err = self.shamrock_controller.SetAutoSlitWidthSR(0, index, slitwidth)
         self.emit_status(ThreadCommand('close_splash'))
 
         if err != 'SHAMROCK_SUCCESS':
             raise IOError(err)
 
-        self.get_slitwidth(0,1)
+        self.get_slitwidth(index)
 
     def get_slitwidth(self,index):
         err, sw = self.shamrock_controller.GetAutoSlitWidthSR(0,index)
@@ -229,6 +228,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
     def ini_spectro(self):
         self.settings.child('spectro_settings', 'spectro_serialnumber').setValue(
             self.shamrock_controller.GetSerialNumberSR(0)[1].decode())
+
 
         # get grating info
         (err, Ngratings) = self.shamrock_controller.GetNumberGratingsSR(0)
