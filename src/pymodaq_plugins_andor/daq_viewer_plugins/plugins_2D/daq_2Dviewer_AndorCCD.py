@@ -91,7 +91,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
              'value': '0.05MHz'},
             {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children': [
 
-                {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False,
+                {'title': 'Single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False,
                  'children': [
                      {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
                      {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
@@ -159,7 +159,6 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.data_shape = None  # 'Data2D' if sizey != 1 else 'Data1D'
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updated_timer)
-
 
 
     def commit_settings(self, param):
@@ -280,7 +279,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
             self.y_axis = self.get_yaxis()
 
 
-    def GetSpeedsString(self):
+    def get_speeds_string(self):
 
         get_speeds = self.camera_controller.GetHSSpeed()
         speeds_str_arr = []
@@ -291,15 +290,15 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         return speeds_str_arr
 
-    def SetSpeedIndex(self, value):
+    def set_speed_index(self, value):
 
-        speeds_arr = self.GetSpeedsString()
+        speeds_arr = self.get_speeds_string()
         return speeds_arr.index(value)
 
     def update_read_speed(self):
         read_speed_val = self.settings.child('camera_settings', 'readout_speed').value()
 
-        err = self.camera_controller.SetHSSpeed(self.SetSpeedIndex(read_speed_val))
+        err = self.camera_controller.SetHSSpeed(self.set_speed_index(read_speed_val))
         if err != 'DRV_SUCCESS':
             self.emit_status(ThreadCommand('Update_Status',[err,'log']))
 
@@ -410,7 +409,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
                             'im_endx').setOpts(max=self.CCDSIZEX, default=self.CCDSIZEX)
 
         #get available readout speeds
-        self.settings.child('camera_settings', 'readout_speed').setLimits(self.GetSpeedsString())
+        self.settings.child('camera_settings', 'readout_speed').setLimits(self.get_speeds_string())
 
         # get max exposure range
         err, maxexpo = self.camera_controller.GetMaximumExposure()
@@ -530,8 +529,6 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         # code original : self.data = np.zeros((image_size,), dtype=int)
         self.data = np.zeros((image_size,), dtype=np.uint32)
-
-
 
         self.data_pointer = self.data.ctypes.data_as(ctypes.c_void_p)
 

@@ -23,12 +23,13 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                     'readonly': True},
                 {'title': 'Wavelength (nm):', 'name': 'spectro_wl', 'type': 'float', 'value': 600, 'min': 0,
                     'readonly': True},
+
+                {'title': 'Home Wavelength (nm):', 'name': 'spectro_wl_home', 'type': 'float', 'value': 600, 'min': 0,
+                 'readonly': False},
                 {'title': 'Slit Width (um):', 'name': 'slit_width', 'type': 'float', 'value': 100, 'min': 0,
                  'readonly': False},
                 {'title': 'Input Port:', 'name': 'input_port', 'type': 'list'},
                 {'title': 'Output Port:', 'name': 'output_port', 'type': 'list'},
-                {'title': 'Home Wavelength (nm):', 'name': 'spectro_wl_home', 'type': 'float', 'value': 600, 'min': 0,
-                 'readonly': False},
                 {'title': 'Grating Settings:', 'name': 'grating_settings', 'type': 'group', 'expanded': True,
                     'children': [
                         {'title': 'Grating:', 'name': 'grating', 'type': 'list'},
@@ -65,7 +66,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                 self.set_wavelength(self.settings.child('spectro_settings', 'spectro_wl').value())
 
             elif param.name() == 'grating_offset':
-
                 err, ind_grating = self.shamrock_controller.GetGratingSR(0)
                 offset = int(self.settings.child('spectro_settings', 'grating_settings', 'grating_offset').value())
                 err = self.shamrock_controller.SetGratingOffset(0, ind_grating, offset)
@@ -83,8 +83,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                     self.emit_status(ThreadCommand('close_splash'))
 
             elif param.name() == 'slit_width':
-                self.set_slitwidth(1, param.value())
-                #CAREFUL ! first parameter (0) is still a hard-coding of the input slit index (MacroPL-UV/L2C-Montpellier)
+                self.set_slitwidth(self.shamrock_controller.get_input_port(0), param.value())
 
             elif param.name() == 'input_port':
                 index_input_port = self.inputport_list.index(param.value())
@@ -229,7 +228,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         self.settings.child('spectro_settings', 'spectro_serialnumber').setValue(
             self.shamrock_controller.GetSerialNumberSR(0)[1].decode())
 
-
         # get grating info
         (err, Ngratings) = self.shamrock_controller.GetNumberGratingsSR(0)
         self.grating_list = []
@@ -244,8 +242,8 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
         self.get_set_grating(ind_grating - 1)
 
-# idem pour les ports (PV/L2C/) :######
-        if self.shamrock_controller.FlipperMirrorIsPresent(0,1)[1]==1:
+        # idem pour les ports (PV/L2C/) :######
+        if self.shamrock_controller.FlipperMirrorIsPresent(0, 1)[1] == 1:
             self.inputport_list = ["INPUT_FRONT", "INPUT_SIDE"]
             self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
             err, inputport_index = self.shamrock_controller.get_input_port(0)
@@ -255,7 +253,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
             self.inputport_list = ["SINGLE_INPUT_PORT"]
             self.settings.child('spectro_settings', 'input_port').setLimits(self.inputport_list)
 
-        if self.shamrock_controller.FlipperMirrorIsPresent(0,2)[1]==1:
+        if self.shamrock_controller.FlipperMirrorIsPresent(0, 2)[1] == 1:
             self.outputport_list = ["OUTPUT_FRONT", "OUTPUT_SIDE"]
             self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
             err, outputport_index = self.shamrock_controller.get_output_port(0)
@@ -285,7 +283,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
         (err, wl_min, wl_max) = self.shamrock_controller.GetWavelengthLimitsSR(0, ind_grating)
 
-
         if err == "SHAMROCK_SUCCESS":
             self.settings.child('spectro_settings',
                                 'spectro_wl').setOpts(limits=(wl_min, wl_max),
@@ -299,7 +296,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         self.emit_status(ThreadCommand('close_splash'))
 
     def set_inputport(self, index_inputport):
-        self.emit_status(ThreadCommand('show_splash', "Setting input port, please wait"))
+        self.emit_status(ThreadCommand('show_splash', "Setting input port, please wait!"))
         if index_inputport == 0 :
             strinputport = "INPUT_FRONT"
         elif index_inputport == 1 :
@@ -322,7 +319,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
 
     def set_outputport(self, index_outputport):
-        self.emit_status(ThreadCommand('show_splash', "Setting output port, please wait"))
+        self.emit_status(ThreadCommand('show_splash', "Setting output port, please wait!"))
         if index_outputport == 0:
             stroutputport = "OUTPUT_FRONT"
         elif index_outputport == 1:

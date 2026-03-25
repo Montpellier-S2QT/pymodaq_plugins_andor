@@ -23,8 +23,7 @@ try:
 except Exception as e:
     raise Exception(f'Could not import Shamrock library: {str(e)}')
 
-# Codes relatives to flipper mirrors
-
+# Codes relative to flipper mirrors
 INPUT_CODE = 1
 OUTPUT_CODE = 2
 
@@ -88,7 +87,6 @@ class ShamrockSDK:
         return ERROR_CODE[error], description.value
 
     #---- sdkeeprom functions
-
     def GetSerialNumberSR(self, device):
         device = c_int(device)
         serial = ctypes.create_string_buffer(128)
@@ -192,14 +190,12 @@ class ShamrockSDK:
         return ERROR_CODE[error]
 
     #---- sdk input/output ports functions
-
     def get_input_port(self, device):
         device = c_int(device)
         input_port = c_int()
         error = _dll.ShamrockGetFlipperMirror(device, INPUT_CODE, byref(input_port))
         if error != 20202:
             raise IOError(ERROR_CODE[error])
-        #return ERROR_CODE[error], "INPUT_FRONT" if input_port.value == FRONT_CODE else "INPUT_SIDE"
         return ERROR_CODE[error], input_port.value
 
     def set_input_port(self, device, strinput_port):
@@ -208,7 +204,7 @@ class ShamrockSDK:
             input_port = FRONT_CODE
         elif strinput_port == "INPUT_SIDE":
             input_port = SIDE_CODE
-        else: output_port = 99  # we put here a value that will raise th P3_INVALID error code
+        else: output_port = 99  # we put here a value that will raise the P3_INVALID error code
 
         input_port = c_int(input_port)
 
@@ -223,7 +219,6 @@ class ShamrockSDK:
         error = _dll.ShamrockGetFlipperMirror(device, OUTPUT_CODE, byref(output_port))
         if error != 20202:
             raise IOError(ERROR_CODE[error])
-        #return ERROR_CODE[error], "OUTPUT_FRONT" if output_port.value == FRONT_CODE else "OUTPUT_SIDE"
         return ERROR_CODE[error], output_port.value
 
     def set_output_port(self, device, stroutput_port):
@@ -232,7 +227,7 @@ class ShamrockSDK:
             output_port = FRONT_CODE
         elif stroutput_port == "OUTPUT_SIDE":
             output_port = SIDE_CODE
-        else : output_port = 99 # we put here a value that will raise th P3_INVALID error code
+        else : output_port = 99 # we put here a value that will raise the P3_INVALID error code
 
         output_port = c_int(output_port)
 
