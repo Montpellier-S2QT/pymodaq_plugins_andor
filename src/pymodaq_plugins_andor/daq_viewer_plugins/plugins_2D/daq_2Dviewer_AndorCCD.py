@@ -77,7 +77,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         utility_classes.DAQ_Viewer_base
     """
     callback_signal = QtCore.Signal(int)
-    hardware_averaging = True #will use the accumulate acquisition mode if averaging is neccessary
+    hardware_averaging = True #will use the accumulate acquisition mode if averaging is necessary
     params = comon_parameters + [
         {'title': 'Dll library:', 'name': 'andor_lib', 'type': 'browsepath', 'value': str(libpath)},
 
