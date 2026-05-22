@@ -13,6 +13,7 @@ name = "pymodaq_plugins_andor"
 description = 'Set of PyMoDAQ plugins for Andor Camera (CCD camera using SDK2, SCMOS cameras using SDK3...)'
 dependencies = [
     "pymodaq>=5.0.0",
+    "pylablib",
     #todo: list here all dependencies your package may have
 ]
 
