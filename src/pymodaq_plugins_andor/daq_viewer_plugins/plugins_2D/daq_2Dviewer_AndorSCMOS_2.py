@@ -19,9 +19,10 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq.control_modules.viewer_utility_classes import comon_parameters, main
 
 
-from pymodaq_plugins_utils.hardware.camera_base_pylablib import CameraBasePyLabLib, cam_params
+from pymodaq_plugins_utils.hardware.camera_base_pylablib import (
+    CameraBasePyLabLib, cam_params, CameraCallback)
 
-from pylablib.devices.Andor import AndorSDK3Camera
+from pylablib.devices.Andor import AndorSDK3Camera, AndorTimeoutError
 
 from pymodaq_plugins_andor.hardware.sdk3_utils import get_camera_names
 
@@ -251,41 +252,6 @@ class DAQ_2DViewer_AndorSCMOS_2(CameraBasePyLabLib):
             pass
         return ""
 
-
-class AndorCallback(QtCore.QObject):
-    """
-
-    """
-    data_sig = QtCore.Signal(list)
-
-    def __init__(self, wait_fn):
-        super().__init__()
-        self.wait_fn = wait_fn
-        self.running = False
-
-    def start(self, naverage, wait_time=0):
-        self.running = True
-
-        self.wait_for_acquisition(naverage, wait_time)
-
-    def stop(self):
-        self.running = False
-
-    def wait_for_acquisition(self, naverage, wait_time):
-        ind_grab = 0
-        while True:
-            if naverage == -1:  # continuous grab
-                if not self.running:
-                    break
-            else:
-                if ind_grab >= naverage or not self.running:
-                    break
-            pData = self.wait_fn()
-            if not not pData:
-                ind_grab += 1
-                #print(f'ind_grab_thread:{ind_grab}')
-                self.data_sig.emit([pData])
-                QtCore.QThread.msleep(wait_time)
 
 
 
