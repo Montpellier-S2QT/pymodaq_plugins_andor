@@ -78,69 +78,70 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
     """
     callback_signal = QtCore.Signal(int)
     hardware_averaging = True #will use the accumulate acquisition mode if averaging is necessary
-    params = comon_parameters + [
-        {'title': 'Dll library:', 'name': 'andor_lib', 'type': 'browsepath', 'value': str(libpath)},
 
-        {'title': 'Camera Settings:', 'name': 'camera_settings', 'type': 'group', 'expanded': True, 'children': [
-            {'title': 'Camera Models:', 'name': 'camera_model', 'type': 'list',
-             'limits': [f"{cam['model']}-{cam['serial']}" for cam in camera_list]},
+    params_camera = [{'title': 'Dll library:', 'name': 'andor_lib', 'type': 'browsepath', 'value': str(libpath)},
+                    {'title': 'Camera Settings:', 'name': 'camera_settings', 'type': 'group', 'expanded': True, 'children': [
+                        {'title': 'Camera Models:', 'name': 'camera_model', 'type': 'list',
+                         'limits': [f"{cam['model']}-{cam['serial']}" for cam in camera_list]},
 
-            {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
-             'value': 'FullVertBinning'},
-            {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': [],
-             'value': '0.05MHz'},
-            {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children': [
+                        {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
+                         'value': 'FullVertBinning'},
+                        {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': [],
+                         'value': '0.05MHz'},
+                        {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children': [
 
-                {'title': 'Single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False,
-                 'children': [
-                     {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                     {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                 ]},
-                {'title': 'Multi Track Settings:', 'name': 'mt_settings', 'type': 'group', 'visible': False,
-                 'children': [
-                     {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                     {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                     {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 0, 'default': 0, 'min': 0},
-                     {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
-                      'readonly': True},
-                     {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
-                      'readonly': True},
-                 ]},
-                {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children': [
-                    {'title': 'Binning along x:', 'name': 'bin_x', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                    {'title': 'Binning along y:', 'name': 'bin_y', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                    {'title': 'Start x:', 'name': 'im_startx', 'type': 'int', 'value': 1, 'default': 1, 'min': 0},
-                    {'title': 'End x:', 'name': 'im_endx', 'type': 'int', 'value': 1024, 'default': 1024, 'min': 0},
-                    {'title': 'Start y:', 'name': 'im_starty', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
-                    {'title': 'End y:', 'name': 'im_endy', 'type': 'int', 'value': 256, 'default': 256, 'min': 1, },
-                ]},
-            ]},
-            {'title': 'Exposure (ms):', 'name': 'exposure', 'type': 'float', 'value': 0.01, 'default': 0.01, 'min': 0},
+                            {'title': 'Single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False,
+                             'children': [
+                                 {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                 {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                             ]},
+                            {'title': 'Multi Track Settings:', 'name': 'mt_settings', 'type': 'group', 'visible': False,
+                             'children': [
+                                 {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                 {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                 {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 0, 'default': 0, 'min': 0},
+                                 {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
+                                  'readonly': True},
+                                 {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 0, 'default': 0, 'min': 0,
+                                  'readonly': True},
+                             ]},
+                            {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children': [
+                                {'title': 'Binning along x:', 'name': 'bin_x', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                {'title': 'Binning along y:', 'name': 'bin_y', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                {'title': 'Start x:', 'name': 'im_startx', 'type': 'int', 'value': 1, 'default': 1, 'min': 0},
+                                {'title': 'End x:', 'name': 'im_endx', 'type': 'int', 'value': 1024, 'default': 1024, 'min': 0},
+                                {'title': 'Start y:', 'name': 'im_starty', 'type': 'int', 'value': 1, 'default': 1, 'min': 1},
+                                {'title': 'End y:', 'name': 'im_endy', 'type': 'int', 'value': 256, 'default': 256, 'min': 1, },
+                            ]},
+                        ]},
+                        {'title': 'Exposure (ms):', 'name': 'exposure', 'type': 'float', 'value': 0.01, 'default': 0.01, 'min': 0},
 
-            {'title': 'Image size:', 'name': 'image_size', 'type': 'group', 'children': [
-                {'title': 'Nx:', 'name': 'Nx', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
-                {'title': 'Ny:', 'name': 'Ny', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
-            ]},
+                        {'title': 'Image size:', 'name': 'image_size', 'type': 'group', 'children': [
+                            {'title': 'Nx:', 'name': 'Nx', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
+                            {'title': 'Ny:', 'name': 'Ny', 'type': 'int', 'value': 0, 'default': 0, 'readonly': True},
+                        ]},
 
-            {'title': 'Shutter Settings:', 'name': 'shutter', 'type': 'group', 'children': [
-                {'title': 'Open Shutter on:', 'name': 'shutter_type', 'type': 'list', 'value': 'high',
-                 'limits': ['low', 'high']},
-                {'title': 'Shutter mode:', 'name': 'shutter_mode', 'type': 'list', 'value': 'Auto',
-                 'limits': ['Auto', 'Always Opened', 'Always Closed', ]},
-                {'title': 'Closing time (ms):', 'name': 'shutter_closing_time', 'type': 'int', 'value': 0,
-                 'tip': 'millisecs it takes to close'},
-                {'title': 'Opening time (ms):', 'name': 'shutter_opening_time', 'type': 'int', 'value': 10,
-                 'tip': 'millisecs it takes to open'},
-            ]},
-            {'title': 'Temperature Settings:', 'name': 'temperature_settings', 'type': 'group', 'children': [
-                {'title': 'Set Point:', 'name': 'set_point', 'type': 'float', 'value': -60, 'default': -60},
-                {'title': 'Current value:', 'name': 'current_value', 'type': 'float', 'value': 0, 'default': 0,
-                 'readonly': True},
-                {'title': 'Locked:', 'name': 'locked', 'type': 'led', 'value': False, 'default': False,
-                 'readonly': True},
-            ]},
-        ]},
+                        {'title': 'Shutter Settings:', 'name': 'shutter', 'type': 'group', 'children': [
+                            {'title': 'Open Shutter on:', 'name': 'shutter_type', 'type': 'list', 'value': 'high',
+                             'limits': ['low', 'high']},
+                            {'title': 'Shutter mode:', 'name': 'shutter_mode', 'type': 'list', 'value': 'Auto',
+                             'limits': ['Auto', 'Always Opened', 'Always Closed', ]},
+                            {'title': 'Closing time (ms):', 'name': 'shutter_closing_time', 'type': 'int', 'value': 0,
+                             'tip': 'millisecs it takes to close'},
+                            {'title': 'Opening time (ms):', 'name': 'shutter_opening_time', 'type': 'int', 'value': 10,
+                             'tip': 'millisecs it takes to open'},
+                        ]},
+                        {'title': 'Temperature Settings:', 'name': 'temperature_settings', 'type': 'group', 'children': [
+                            {'title': 'Set Point:', 'name': 'set_point', 'type': 'float', 'value': -60, 'default': -60},
+                            {'title': 'Current value:', 'name': 'current_value', 'type': 'float', 'value': 0, 'default': 0,
+                             'readonly': True},
+                            {'title': 'Locked:', 'name': 'locked', 'type': 'led', 'value': False, 'default': False,
+                             'readonly': True},
+                        ]},
+                    ]},
     ]
+
+    params = comon_parameters + params_camera
 
     def ini_attributes(self):
 
@@ -360,11 +361,16 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
             daq_utils.ThreadCommand, hardware1D.DAQ_1DViewer_Picoscope.update_pico_settings
         """
 
-        self.camera_controller = self.ini_detector_init(old_controller=controller,
-                                                        new_controller=sdk2.AndorSDK())
+        if self.is_master:
+            self.camera_controller = sdk2.AndorSDK()  #instantiate you driver with whatever arguments are needed
+            initialized = True
+
+        else:
+            self.camera_controller = controller
+            initialized = True
 
         self.emit_status(ThreadCommand('show_splash', "Set/Get Camera's settings"))
-        self.ini_camera()
+        self.controller.ini_camera()
 
         # %%%%%%% init axes from image
         self.x_axis = self.get_xaxis()

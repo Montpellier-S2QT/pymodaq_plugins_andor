@@ -15,7 +15,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
     axes_names = []  # "list of strings of the multiaxes
     _epsilon = 0.1
 
-    params = [
+    params_shamrock = [
         {'title': 'Dll library:', 'name': 'andor_lib', 'type': 'browsepath', 'value': str(libpath), 'readonly': True},
         {'title': 'Spectro Settings:', 'name': 'spectro_settings', 'type': 'group', 'expanded': True,
             'children': [
@@ -40,8 +40,11 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                 {'title': 'Flip wavelength axis:', 'name': 'flip_wavelength', 'type': 'bool', 'value': False,
                     'visible': False},
                 {'title': 'Go to zero order:', 'name': 'zero_order', 'type': 'bool'},
-            ]},
-        ] + comon_parameters_fun(is_multiaxes, axes_names, epsilon=_epsilon)
+            ]
+         },
+    ]
+
+    params = params_shamrock + comon_parameters_fun(is_multiaxes, axes_names, epsilon=_epsilon)
 
     def commit_settings(self, param):
         """
