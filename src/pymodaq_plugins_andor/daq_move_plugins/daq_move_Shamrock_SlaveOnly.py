@@ -49,6 +49,7 @@ class DAQ_Move_Shamrock_SlaveOnly(DAQ_Move_base):
             self.controller = controller
             initialized = True
 
+        print(controller)
         self.shamrock_controller = controller.shamrock
         self.settings.child('spectro_serialnumber').setValue(
             self.shamrock_controller.GetSerialNumberSR(0)[1].decode())

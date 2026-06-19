@@ -370,7 +370,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
             initialized = True
 
         self.emit_status(ThreadCommand('show_splash', "Set/Get Camera's settings"))
-        self.controller.ini_camera()
+        self.ini_camera()
 
         # %%%%%%% init axes from image
         self.x_axis = self.get_xaxis()
