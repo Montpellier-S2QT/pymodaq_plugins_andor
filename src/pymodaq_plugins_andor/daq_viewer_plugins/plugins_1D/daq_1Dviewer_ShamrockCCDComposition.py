@@ -40,10 +40,13 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
     if d is not None:
         d['visible'] = True
 
-    params = comon_parameters + [{'title': 'Get Calibration:', 'name': 'get_calib', 'type': 'bool_push', 'value': False,
-               'label': 'Update!'}, ] + params_camera + [
+    params = (comon_parameters +
+              [{'title': 'Get Calibration:', 'name': 'get_calib', 'type': 'bool_push', 'value': False,
+               'label': 'Update!'},
+                {'title': 'Save x axis data:', 'name': 'save_x_axis', 'type': 'bool', 'value': False}
+                ] + params_camera + [
                  {'title': 'Shamrock Settings:', 'name': 'sham_settings', 'type': 'group', 'children': params_shamrock},
-             ]
+             ])
 
 
     def ini_attributes(self):
@@ -422,15 +425,17 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
             sizey = self.settings.child('camera_settings', 'image_size', 'Ny').value()
             sizex = self.settings.child('camera_settings', 'image_size', 'Nx').value()
             self.camera_controller.GetAcquiredDataNumpy(self.data_pointer, sizex * sizey)
-            self.dte_signal.emit(
-                DataToExport('Spectro',
+
+            dte = DataToExport('Spectro',
                              data=[
                                  DataFromPlugins(name='Camera',
                                                  data=[np.atleast_1d(np.squeeze(self.data.reshape(
                                                      (sizey, sizex)))).astype(float)],
                                                  dim=self.data_shape,
-                                                 axes=[self.x_axis]),
-                             ]))
+                                                 axes=[self.x_axis])])
+            if self.settings['save_x_axis']:
+                dte.append(self.x_axis.as_dwa())
+            self.dte_signal.emit(dte)
             QtWidgets.QApplication.processEvents()  # here to be sure the timeevents are executed even if in continuous grab mode
 
         except Exception as e:
