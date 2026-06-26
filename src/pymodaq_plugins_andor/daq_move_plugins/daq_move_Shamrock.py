@@ -26,7 +26,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
                 {'title': 'Home Wavelength (nm):', 'name': 'spectro_wl_home', 'type': 'float', 'value': 600, 'min': 0,
                  'readonly': False},
-                {'title': 'Slit Width (um):', 'name': 'slit_width', 'type': 'float', 'value': 100, 'min': 0,
+                {'title': 'Slit Width (um):', 'name': 'slit_width', 'type': 'int', 'value': 100, 'min': 0,
                  'readonly': False},
                 {'title': 'Input Port:', 'name': 'input_port', 'type': 'list'},
                 {'title': 'Output Port:', 'name': 'output_port', 'type': 'list'},
@@ -83,7 +83,7 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
                     self.emit_status(ThreadCommand('close_splash'))
 
             elif param.name() == 'slit_width':
-                self.set_slitwidth(self.shamrock_controller.get_input_port(0), param.value())
+                self.set_slitwidth(self.shamrock_controller.get_input_port(0)[1], param.value())
 
             elif param.name() == 'input_port':
                 index_input_port = self.inputport_list.index(param.value())
@@ -209,7 +209,9 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
 
     def set_slitwidth(self, index, slitwidth):
         self.emit_status(ThreadCommand('show_splash', "Setting slit width, please wait!"))
-        err = self.shamrock_controller.SetAutoSlitWidthSR(0, index, slitwidth)
+        err = self.shamrock_controller.SetAutoSlitWidthSR(0, index, int(slitwidth))
+        if err != "SHAMROCK_SUCCESS":
+            raise IOError(err)
         self.emit_status(ThreadCommand('close_splash'))
 
         if err != 'SHAMROCK_SUCCESS':
@@ -266,8 +268,6 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
         # check if auto slit width setting is available
         if self.shamrock_controller.AutoSlitIsPresent(0, 1)[1] == 0:
             self.settings.child('spectro_settings', 'slit_width').hide()
-        elif self.shamrock_controller.AutoSlitIsPresent(0, 1)[1] == 1:
-            print('slit ok')
 
 #######################################
 
