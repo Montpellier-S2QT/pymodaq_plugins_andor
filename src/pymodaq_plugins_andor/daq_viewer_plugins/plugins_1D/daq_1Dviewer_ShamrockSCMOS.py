@@ -1,5 +1,7 @@
 
+
 import numpy as np
+from time import perf_counter
 from qtpy import QtWidgets
 
 from pymodaq_utils.utils import ThreadCommand, find_dict_in_list_from_key_val
