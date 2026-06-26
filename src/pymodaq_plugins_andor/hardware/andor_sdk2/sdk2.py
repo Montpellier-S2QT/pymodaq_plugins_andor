@@ -219,7 +219,7 @@ class AndorSDK:
             (int) : the number of HS speeds
         '''
         noHSSpeeds = c_int()
-        error = _dll.GetNumberHSSpeeds(self._channel, self._outamp,
+        error = _dll.GetNumberHSSpeeds(0, 0,
                                             byref(noHSSpeeds))
         if error != 20002:
             raise IOError(ERROR_CODE[error])
@@ -901,7 +901,7 @@ class AndorSDK:
         HSSpeed = c_float()
         HSSpeeds = []
         for i in range(self.GetNumberHSSpeeds()):
-            error = _dll.GetHSSpeed(self._channel, self._outamp, i, byref(HSSpeed))
+            error = _dll.GetHSSpeed(0, 0, i, byref(HSSpeed))
             if error != 20002:
                 raise IOError(ERROR_CODE[error])
             HSSpeeds.append(HSSpeed.value)
@@ -917,7 +917,7 @@ class AndorSDK:
         Output:
             None
         '''
-        error = _dll.SetHSSpeed(index)
+        error = _dll.SetHSSpeed(0, index)
         if error != 20002:
             raise IOError(ERROR_CODE[error])
 
