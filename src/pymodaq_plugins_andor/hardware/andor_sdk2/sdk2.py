@@ -208,7 +208,7 @@ class AndorSDK:
             raise IOError(ERROR_CODE[error])
         return (ERROR_CODE[error], maxbinning.value)
 
-    def GetNumberHSSpeeds(self):
+    def GetNumberHSSpeeds(self, channel, outamp):
         '''
         Returns the number of HS speeds
 
@@ -219,7 +219,7 @@ class AndorSDK:
             (int) : the number of HS speeds
         '''
         noHSSpeeds = c_int()
-        error = _dll.GetNumberHSSpeeds(0, 0,
+        error = _dll.GetNumberHSSpeeds(channel, outamp,
                                             byref(noHSSpeeds))
         if error != 20002:
             raise IOError(ERROR_CODE[error])
@@ -888,7 +888,7 @@ class AndorSDK:
         if error != 20002:
             raise IOError(ERROR_CODE[error])
 
-    def GetHSSpeed(self):
+    def GetHSSpeed(self, channel, outamp):
         '''
         Returns the available HS speeds of the selected channel
 
@@ -900,8 +900,8 @@ class AndorSDK:
         '''
         HSSpeed = c_float()
         HSSpeeds = []
-        for i in range(self.GetNumberHSSpeeds()):
-            error = _dll.GetHSSpeed(0, 0, i, byref(HSSpeed))
+        for i in range(self.GetNumberHSSpeeds(channel, outamp)):
+            error = _dll.GetHSSpeed(channel, outamp, i, byref(HSSpeed))
             if error != 20002:
                 raise IOError(ERROR_CODE[error])
             HSSpeeds.append(HSSpeed.value)

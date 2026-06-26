@@ -263,6 +263,12 @@ class DAQ_Move_Shamrock(DAQ_Move_base):
             self.outputport_list = ["SINGLE_OUTPUT_PORT"]
             self.settings.child('spectro_settings', 'output_port').setLimits(self.outputport_list)
 
+        # check if auto slit width setting is available
+        if self.shamrock_controller.AutoSlitIsPresent(0, 1)[1] == 0:
+            self.settings.child('spectro_settings', 'slit_width').hide()
+        elif self.shamrock_controller.AutoSlitIsPresent(0, 1)[1] == 1:
+            print('slit ok')
+
 #######################################
 
     def get_set_grating(self, ind_grating):

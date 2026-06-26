@@ -171,6 +171,15 @@ class ShamrockSDK:
 
     #---- sdkslit functions
 
+    def AutoSlitIsPresent(self, device, index):
+        device = c_int(device)
+        index = c_int(index)
+        slit_present = c_int()
+        error = _dll.ShamrockAutoSlitIsPresent(device, index, byref(slit_present))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], slit_present.value
+
     def GetAutoSlitWidthSR(self, device, index):
         device = c_int(device)
         index = c_int(index)
