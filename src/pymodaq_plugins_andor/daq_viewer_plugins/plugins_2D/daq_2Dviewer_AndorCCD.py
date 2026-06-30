@@ -86,17 +86,19 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             {'title': 'Readout Modes:', 'name': 'readout', 'type': 'list', 'limits': Andor_Camera_ReadOut.names()[0:-1],
                                             'value': 'FullVertBinning'},
+            {'title': 'Readout Speed:', 'name': 'readout_speed', 'type': 'list', 'limits': [],
+             'value': '0.05MHz'},
             {'title': 'Readout Settings:', 'name': 'readout_settings', 'type': 'group', 'children':[
 
-                {'title': 'single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False, 'children':[
+                {'title': 'Single Track Settings:', 'name': 'st_settings', 'type': 'group', 'visible': False, 'children':[
                     {'title': 'Center pixel:', 'name': 'st_center', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
                     {'title': 'Height:', 'name': 'st_height', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
                 ]},    
                 {'title': 'Multi Track Settings:', 'name': 'mt_settings', 'type': 'group', 'visible': False, 'children':[
                     {'title': 'Ntrack:', 'name': 'mt_N', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
                     {'title': 'Height:', 'name': 'mt_height', 'type': 'int', 'value': 1 , 'default':1, 'min':1},
-                    {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 1 , 'default':1, 'min':0},
-                    {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 1 , 'default':1, 'min':0, 'readonly': True},
+                    {'title': 'Offset:', 'name': 'mt_offset', 'type': 'int', 'value': 0 , 'default':0, 'min':0},
+                    {'title': 'Bottom:', 'name': 'mt_bottom', 'type': 'int', 'value': 0 , 'default':0, 'min':0, 'readonly': True},
                     {'title': 'Gap:', 'name': 'mt_gap', 'type': 'int', 'value': 1 , 'default':1, 'min':0, 'readonly': True},
                 ]},
                 {'title': 'Image Settings:', 'name': 'image_settings', 'type': 'group', 'visible': False, 'children':[
@@ -171,6 +173,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
             elif param.name() == 'readout' or param.name() in iter_children(self.settings.child('camera_settings', 'readout_settings')):
                 self.update_read_mode()
+
+            elif param.name() == 'readout_speed':
+                self.update_read_speed()
                 
             elif param.name() == 'exposure':
                 self.camera_controller.SetExposureTime(param.value() / 1000) #temp should be in s
@@ -303,6 +308,30 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         return err
 
+    def get_speeds_string(self):
+
+        get_speeds = self.camera_controller.GetHSSpeed(0, 0)
+        speeds_str_arr = []
+
+        for speed in get_speeds:
+            speed_str = str("{:.2f}".format(speed))
+            speeds_str_arr.append(speed_str + "MHz")
+
+        return speeds_str_arr
+
+    def set_speed_index(self, value):
+
+        speeds_arr = self.get_speeds_string()
+        return speeds_arr.index(value)
+
+    def update_read_speed(self):
+        read_speed_val = self.settings.child('camera_settings', 'readout_speed').value()
+
+        err = self.camera_controller.SetHSSpeed(self.set_speed_index(read_speed_val))
+        if err != 'DRV_SUCCESS':
+            self.emit_status(ThreadCommand('Update_Status', [err, 'log']))
+
+
     def ini_detector(self, controller=None):
         """
             Initialisation procedure of the detector in four steps :
@@ -367,6 +396,9 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
         self.settings.child('camera_settings', 'readout_settings', 'image_settings', 'im_endx').setValue(self.CCDSIZEX)
         self.settings.child('camera_settings', 'readout_settings', 'image_settings',
                             'im_endx').setOpts(max=self.CCDSIZEX, default=self.CCDSIZEX)
+
+        # get available readout speeds
+        self.settings.child('camera_settings', 'readout_speed').setLimits(self.get_speeds_string())
 
         # get max exposure range
         err, maxexpo = self.camera_controller.GetMaximumExposure()
@@ -483,7 +515,7 @@ class DAQ_2DViewer_AndorCCD(DAQ_Viewer_base):
 
         # %%%%%% Initialize data: self.data for the memory to store new data and self.data_average to store the average data
         image_size = sizex * sizey
-        self.data = np.zeros((image_size,), dtype=int)
+        self.data = np.zeros((image_size,), dtype=np.uint32)
         self.data_pointer = self.data.ctypes.data_as(ctypes.c_void_p)
 
         data_shape = 'Data2D' if sizey != 1 else 'Data1D'
