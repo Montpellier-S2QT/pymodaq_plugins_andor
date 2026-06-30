@@ -1,6 +1,6 @@
 import ctypes
 from ctypes import windll, c_int, c_char, byref, c_long, \
-    pointer, c_float, c_char_p, cdll
+    pointer, c_float, c_char_p, c_wchar_p, cdll
 
 import sys
 import platform
@@ -22,6 +22,13 @@ try:
 
 except Exception as e:
     raise Exception(f'Could not import Shamrock library: {str(e)}')
+
+# Codes relative to flipper mirrors
+INPUT_CODE = 1
+OUTPUT_CODE = 2
+
+FRONT_CODE = 0
+SIDE_CODE = 1
 
 
 class ShamrockSDK:
@@ -80,7 +87,6 @@ class ShamrockSDK:
         return ERROR_CODE[error], description.value
 
     #---- sdkeeprom functions
-
     def GetSerialNumberSR(self, device):
         device = c_int(device)
         serial = ctypes.create_string_buffer(128)
@@ -144,7 +150,110 @@ class ShamrockSDK:
         if error != 20202:
             raise IOError(ERROR_CODE[error])
         return ERROR_CODE[error], Lines.value, Blaze.value.decode(), Home.value, Offset.value
-    
+
+    def SetGratingOffset(self, device, grating, offset):
+        device = c_int(device)
+        grating = c_int(grating)
+        offset = c_int(offset)
+        error = _dll.ShamrockSetGratingOffset(device, grating, offset)
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error]
+
+    def GetGratingOffset(self, device, grating):
+        device = c_int(device)
+        grating = c_int(grating)
+        offset = c_int()
+        error = _dll.ShamrockGetGratingOffset(device, grating, byref(offset))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], offset.value
+
+    #---- sdkslit functions
+
+    def AutoSlitIsPresent(self, device, index):
+        device = c_int(device)
+        index = c_int(index)
+        slit_present = c_int()
+        error = _dll.ShamrockAutoSlitIsPresent(device, index, byref(slit_present))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], slit_present.value
+
+    def GetAutoSlitWidthSR(self, device, index):
+        device = c_int(device)
+        index = c_int(index)
+        sw = c_float()
+        error = _dll.ShamrockGetAutoSlitWidth(device, index, byref(sw))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], sw.value
+
+    def SetAutoSlitWidthSR(self, device, index, width):
+        device = c_int(device)
+        index = c_int(index)
+        width = c_float(width)
+        error = _dll.ShamrockSetAutoSlitWidth(device, index, width)
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error]
+
+    #---- sdk input/output ports functions
+    def get_input_port(self, device):
+        device = c_int(device)
+        input_port = c_int()
+        error = _dll.ShamrockGetFlipperMirror(device, INPUT_CODE, byref(input_port))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], input_port.value
+
+    def set_input_port(self, device, strinput_port):
+        device = c_int(device)
+        if strinput_port == "INPUT_FRONT":
+            input_port = FRONT_CODE
+        elif strinput_port == "INPUT_SIDE":
+            input_port = SIDE_CODE
+        else: output_port = 99  # we put here a value that will raise the P3_INVALID error code
+
+        input_port = c_int(input_port)
+
+        error = _dll.ShamrockSetFlipperMirror(device, INPUT_CODE, input_port)
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error]
+
+    def get_output_port(self, device):
+        device = c_int(device)
+        output_port = c_int()
+        error = _dll.ShamrockGetFlipperMirror(device, OUTPUT_CODE, byref(output_port))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], output_port.value
+
+    def set_output_port(self, device, stroutput_port):
+        device = c_int(device)
+        if stroutput_port == "OUTPUT_FRONT":
+            output_port = FRONT_CODE
+        elif stroutput_port == "OUTPUT_SIDE":
+            output_port = SIDE_CODE
+        else : output_port = 99 # we put here a value that will raise the P3_INVALID error code
+
+        output_port = c_int(output_port)
+
+        error = _dll.ShamrockSetFlipperMirror(device, OUTPUT_CODE, output_port)
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error]
+
+    def FlipperMirrorIsPresent(self, device, port_code):
+        device = c_int(device)
+        present = c_int()
+        error = _dll.ShamrockFlipperMirrorIsPresent(device, port_code, byref(present))
+        if error != 20202:
+            raise IOError(ERROR_CODE[error])
+        return ERROR_CODE[error], present.value
+
+
     #---- sdkwavelength functions
     def SetWavelengthSR(self, device, wavelength):
         device = c_int(device)

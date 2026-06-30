@@ -63,6 +63,8 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
         if param.name() == 'spectro_wl':
             self.is_calibrated = False
             self.get_xaxis()
+        elif param.name() == 'slit_width':
+            self.is_calibrated = False
         elif param.name() == 'zero_order':
             self.is_calibrated = False
         elif param.name() == 'flip_wavelength':
@@ -74,6 +76,9 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
             if param.value():
                 self.get_xaxis()
                 param.setValue(False)
+        elif param.name() == 'grating':
+            if param.value():
+                self.get_xaxis()
 
     def ini_detector(self, controller=None):
         cam_status, cam_init = super().ini_detector(controller)
@@ -97,10 +102,8 @@ class DAQ_1DViewer_ShamrockCCDComposition(DAQ_2DViewer_AndorCCD):
         width, height = self.get_pixel_size()
         err = self.shamrock_controller.controller.SetNumberPixelsSR(0, self.get_ROI_size_x())
         err = self.shamrock_controller.controller.SetPixelWidthSR(0, width)
-
         self.shamrock_controller.get_wavelength()
         self.x_axis = self.get_xaxis()
-
 
     def getCalibration(self):
 
