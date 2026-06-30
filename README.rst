@@ -41,5 +41,6 @@ Viewer2D
 ++++++++
 
 * **AndorCCD**: Andor CCD camera using the SDK2
-* **AndorSCMOS**: Andor CCD camera using the SDK3
+* **AndorSCMOS**: Andor CCD camera using the SDK3 (legacy)
+* **AndorSCMOSPll**: Andor CCD camera using the SDK3 through the pylablib driver (recommended)
 
