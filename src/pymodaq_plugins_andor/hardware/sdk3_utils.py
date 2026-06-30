@@ -2,7 +2,6 @@
 from pymodaq_utils.config import GlobalConfig
 from pymodaq_utils.logger import get_module_name, set_logger
 
-
 from pylablib.devices.Andor import AndorSDK3Camera
 from pylablib.devices import Andor
 

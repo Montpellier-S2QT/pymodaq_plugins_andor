@@ -58,7 +58,7 @@ cam_params.extend(
 )
 
 
-class DAQ_2DViewer_AndorSCMOS_2(CameraBasePyLabLib):
+class DAQ_2DViewer_AndorSCMOSPll(CameraBasePyLabLib):
     """
         Base class for Andor SCMOS camera
 
@@ -251,8 +251,6 @@ class DAQ_2DViewer_AndorSCMOS_2(CameraBasePyLabLib):
         except:
             pass
         return ""
-
-
 
 
 if __name__ == '__main__':
