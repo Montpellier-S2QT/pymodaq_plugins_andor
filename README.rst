@@ -32,14 +32,20 @@ Actuators
 Viewer1D
 ++++++++
 
-* **ShamrockCCD**: Shamrock series of spectrometer using the Andor CCD cameras (built using double inheritance)
-* **ShamrockSCMOS**: Shamrock series of spectrometer using the Andor SCMOS cameras (Not tested) (built using double inheritance)
-* **ShamrockCCDComposition**: Shamrock series of spectrometer using the Andor CCD cameras (built using CCD camera inheritance and Shamrock composition)
-* **ShamrockSCMOSComposition**: Shamrock series of spectrometer using the Andor SCMOS cameras (Not tested) (built using SCMOS camera inheritance and Shamrock composition)
+* **ShamrockCCDLegacy**: Shamrock series of spectrometer using the Andor CCD cameras (built using double inheritance), this
+  is a legacy plugin don't use it anymore
+* **ShamrockSCMOSLegacy**: Shamrock series of spectrometer using the Andor SCMOS cameras (Not tested)
+  (built using double inheritance), this is a legacy plugin don't use it anymore
+* **ShamrockCCD**: Shamrock series of spectrometer using the Andor CCD cameras
+  (built using CCD camera inheritance and Shamrock composition)
+* **ShamrockSCMOS**: Shamrock series of spectrometer using the Andor SCMOS cameras (Not tested)
+  (built using SCMOS camera inheritance and Shamrock composition)
 
 Viewer2D
 ++++++++
 
 * **AndorCCD**: Andor CCD camera using the SDK2
 * **AndorSCMOS**: Andor CCD camera using the SDK3
+* **AndorSCMOSPll**: Andor CCD camera using the SDK3 through the pylablib driver (experimental but already in use,
+  subject to changes)
 
